@@ -714,7 +714,23 @@ export const systems = {
                 await systems.sleepInterruptible(systems, 5000);
             }
         },
-        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+        // 8. Tutorial Practice: Aimed & Random
+        async function (callbackbeam, systems, color) {
+            await systems.sleepInterruptible(systems, 1000);
+            while (window.battleActive) {
+                // 1. Aimed Cross Warning
+                callbackbeam(1200, window.playerY, -20, 0, color, true, true);
+                callbackbeam(window.playerX, 700, 0, -20, color, false, true);
+                await systems.sleepInterruptible(systems, 1000);
+
+                // 2. Random Scatter
+                for (let i = 0; i < 5; i++) {
+                    callbackbeam(1200, Math.random() * 650, -15 - Math.random() * 10, 0, color, true);
+                }
+                await systems.sleepInterruptible(systems, 1500);
+            }
+        },
+        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
         // --- RED BOSS ---
         // 29. Red Boss Form 1: Grid Attack (4x5 then fill gaps)
         async function (callbackbeam, systems, color) {

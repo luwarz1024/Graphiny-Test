@@ -328,33 +328,70 @@ export async function launch() {
   }
 
 
+  /* Enhanced Intro Sequence */
   const fullText = ">start Graphiny**\n>>check Drive\n*>>>OK.\n>>check Battery\n*>>>OK.\n>>check Engine\n*>>>OK.\n>>check Fuel\n*>>>OK.\n";
   let currentText = "";
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+
+  let isZooming = false;
+
   async function typeText() {
     const ori = fullText.length;
+    // Faster Typing
     for (let i = 0; i < ori; i++) {
-      if (fullText[i] === '*') {
-        await sleep(500);
-      } else {
-        currentText += fullText[i];
+      const char = fullText[i];
+      if (char === '*') {
+        // Flash Effect on Check
+        const ctx = interiorAssets.tvCtx;
+        ctx.fillStyle = '#00ff00'; // Flash Green
+        ctx.fillRect(0, 0, 512, 256);
         interiorAssets.tvScreen.material.map.needsUpdate = true;
-        await sleep(30);
+        await sleep(50);
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, 512, 256);
+
+        await sleep(100); // Drastically reduced wait
+      } else {
+        currentText += char;
+        interiorAssets.tvScreen.material.map.needsUpdate = true;
+        // Type faster
+        await sleep(5);
       }
     }
-    await sleep(1000);
+
+    // Glitch Effect before Start
+    for (let i = 0; i < 5; i++) {
+      interiorAssets.tvScreen.material.emissive.setHex(Math.random() * 0xffffff);
+      interiorAssets.tvScreen.position.x += (Math.random() - 0.5) * 0.1;
+      await sleep(30);
+      interiorAssets.tvScreen.position.x = myHouse.position.x + 1.5;
+    }
+    interiorAssets.tvScreen.material.emissive.setHex(0x000000);
+
+    await sleep(200);
     currentText += "\nGraphiny Start";
+
+    // Start Zoom
+    isZooming = true;
+
     for (let i = ori; i < fullText.length; i++) {
       currentText += fullText[i];
       interiorAssets.tvScreen.material.map.needsUpdate = true;
-      await sleep(30);
+      await sleep(10);
     }
-    await sleep(1000);
+
+    await sleep(800);
     startGameMain();
   }
-  typeText();
+
+  if (!tvOn) {
+    // Auto-start the sequence immediately
+    // toggleTV(); // The logic was slightly mixed, let's just run typeText directly as intended by original code
+    typeText();
+  }
+
   const clock = new THREE.Clock();
   function animate() {
     requestAnimationFrame(animate);
@@ -388,14 +425,23 @@ export async function launch() {
     }
 
     const ctx = interiorAssets.tvCtx;
-    ctx.fillStyle = '#000000';
+    // Glitchy Text Render
+    if (Math.random() > 0.95) {
+      ctx.fillStyle = '#001100';
+    } else {
+      ctx.fillStyle = '#000000';
+    }
+
     ctx.fillRect(0, 0, 512, 256);
     ctx.fillStyle = '#ffffff';
     ctx.font = '15px monospace';
 
     const lines = currentText.split('\n');
     for (let i = 0; i < lines.length; i++) {
-      ctx.fillText(lines[i], 20, 50 + i * 15);
+      // Simple shake for text
+      let ox = 0;
+      if (isZooming) ox = (Math.random() - 0.5) * 2;
+      ctx.fillText(lines[i], 20 + ox, 50 + i * 15);
     }
     interiorAssets.tvScreen.material.map.needsUpdate = true;
 
@@ -406,8 +452,6 @@ export async function launch() {
 
     player.position.y = 1.0;
 
-
-
     const minX = myHouse.position.x - 4.5;
     const maxX = myHouse.position.x + 4.5;
     const minZ = myHouse.position.z - 5.5;
@@ -417,7 +461,15 @@ export async function launch() {
     player.position.z = Math.max(minZ, Math.min(maxZ, player.position.z));
 
     if (mode === 'first') {
-      cameraFP.position.copy(player.position);
+      const targetPos = new THREE.Vector3(interiorAssets.tvScreen.position.x, interiorAssets.tvScreen.position.y, interiorAssets.tvScreen.position.z + 1.5);
+
+      if (isZooming) {
+        // Camera Zoom Effect
+        cameraFP.position.lerp(targetPos, dt * 1.5);
+        cameraFP.lookAt(interiorAssets.tvScreen.position);
+      } else {
+        cameraFP.position.copy(player.position);
+      }
     } else {
       const offset = new THREE.Vector3(Math.sin(tpYaw), -Math.sin(tpPitch), Math.cos(tpYaw)).multiplyScalar(8);
       const desiredCamPos = player.position.clone().add(new THREE.Vector3(0, 3.5, 0)).sub(offset);

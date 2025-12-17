@@ -61,13 +61,14 @@ export async function start() {
         const dpad = document.createElement('div');
         dpad.id = 'virtual-dpad';
         dpad.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            width: 180px;
-            height: 180px;
-            z-index: 10000;
-        `;
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        width: 180px;
+        height: 180px;
+        z-index: 10000;
+        opacity: 0.6; 
+    `;
 
         const directions = [
             { id: 'up', label: '↑', top: '0', left: '50%', transform: 'translateX(-50%)', key: 'ArrowUp' },
@@ -80,50 +81,99 @@ export async function start() {
             const btn = document.createElement('div');
             btn.textContent = dir.label;
             btn.style.cssText = `
-                position: absolute;
-                width: 60px;
-                height: 60px;
-                background: rgba(255,255,255,0.2);
-                border: 3px solid rgba(255,255,255,0.6);
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 28px;
-                font-weight: bold;
-                color: rgba(255,255,255,0.9);
-                user-select: none;
-                touch-action: none;
-                ${dir.top ? `top: ${dir.top};` : ''}
-                ${dir.bottom ? `bottom: ${dir.bottom};` : ''}
-                ${dir.left ? `left: ${dir.left};` : ''}
-                ${dir.right ? `right: ${dir.right};` : ''}
-                transform: ${dir.transform};
-            `;
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: rgba(255,255,255,0.5);
+            user-select: none;
+            touch-action: none;
+            ${dir.top ? `top: ${dir.top};` : ''}
+            ${dir.bottom ? `bottom: ${dir.bottom};` : ''}
+            ${dir.left ? `left: ${dir.left};` : ''}
+            ${dir.right ? `right: ${dir.right};` : ''}
+            transform: ${dir.transform};
+        `;
 
             btn.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 simulateKeyPress(dir.key, true);
-                btn.style.background = 'rgba(255,255,255,0.5)';
-                btn.style.borderColor = 'rgba(255,255,255,1)';
+                btn.style.background = 'rgba(255,255,255,0.2)';
+                btn.style.borderColor = 'rgba(255,255,255,0.4)';
             }, { passive: false });
 
             btn.addEventListener('touchend', (e) => {
                 e.preventDefault();
                 simulateKeyPress(dir.key, false);
-                btn.style.background = 'rgba(255,255,255,0.2)';
-                btn.style.borderColor = 'rgba(255,255,255,0.6)';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.style.borderColor = 'rgba(255,255,255,0.2)';
             }, { passive: false });
 
             btn.addEventListener('touchcancel', (e) => {
                 e.preventDefault();
                 simulateKeyPress(dir.key, false);
-                btn.style.background = 'rgba(255,255,255,0.2)';
-                btn.style.borderColor = 'rgba(255,255,255,0.6)';
+                btn.style.background = 'rgba(255,255,255,0.05)';
+                btn.style.borderColor = 'rgba(255,255,255,0.2)';
             }, { passive: false });
 
             dpad.appendChild(btn);
         });
+
+        // Attack Button
+        const attackBtn = document.createElement('div');
+        attackBtn.textContent = 'A';
+        attackBtn.style.cssText = `
+        position: fixed;
+        bottom: 60px;
+        right: 40px;
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 50, 50, 0.1);
+        border: 2px solid rgba(255, 50, 50, 0.3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: bold;
+        color: rgba(255, 255, 255, 0.6);
+        z-index: 10000;
+        user-select: none;
+        touch-action: none;
+    `;
+
+        attackBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            simulateKeyPress(' ', true); // Spacebar
+            attackBtn.style.background = 'rgba(255, 50, 50, 0.3)';
+            attackBtn.style.borderColor = 'rgba(255, 50, 50, 0.6)';
+            attackBtn.style.transform = 'scale(0.95)';
+        }, { passive: false });
+
+        attackBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            simulateKeyPress(' ', false);
+            attackBtn.style.background = 'rgba(255, 50, 50, 0.1)';
+            attackBtn.style.borderColor = 'rgba(255, 50, 50, 0.3)';
+            attackBtn.style.transform = 'scale(1)';
+        }, { passive: false });
+
+        attackBtn.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+            simulateKeyPress(' ', false);
+            attackBtn.style.background = 'rgba(255, 50, 50, 0.1)';
+            attackBtn.style.borderColor = 'rgba(255, 50, 50, 0.3)';
+            attackBtn.style.transform = 'scale(1)';
+        }, { passive: false });
+
+        document.body.appendChild(attackBtn);
 
         document.body.appendChild(dpad);
     }
@@ -300,6 +350,95 @@ export async function start() {
         }
         background.canvas();
         return background;
+    }
+
+    function addbg(parent) {
+        // Create canvas for the background effect
+        const canvas = document.createElement('canvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        canvas.style.cssText = `
+            position: absolute; inset: 0; z-index: -1; pointer-events: none;
+            background: radial-gradient(circle at center, #0a0a20 0%, #000000 100%);
+        `;
+        // Insert as first child to be behind everything
+        if (parent.firstChild) {
+            parent.insertBefore(canvas, parent.firstChild);
+        } else {
+            parent.appendChild(canvas);
+        }
+
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        const resize = () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Node Network Logic
+        const nodes = [];
+        const nodeCount = 60;
+        const connectionDistance = 150;
+
+        for (let i = 0; i < nodeCount; i++) {
+            nodes.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                size: Math.random() * 2 + 1
+            });
+        }
+
+        function animateNodes() {
+            if (!parent.isConnected) {
+                window.removeEventListener('resize', resize);
+                return; // Stop animation if parent is removed
+            }
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Update and draw nodes
+            ctx.fillStyle = '#00ffff';
+            nodes.forEach(node => {
+                node.x += node.vx;
+                node.y += node.vy;
+
+                if (node.x < 0 || node.x > width) node.vx *= -1;
+                if (node.y < 0 || node.y > height) node.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw connections
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < connectionDistance) {
+                        const opacity = 1 - (dist / connectionDistance);
+                        ctx.strokeStyle = `rgba(0, 255, 255, ${opacity * 0.5})`;
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateNodes);
+        }
+        animateNodes();
+
+        return canvas;
     }
     function saferemove(id) {
         const el = document.getElementById(id);
@@ -575,176 +714,204 @@ export async function start() {
     }
 
     async function visualnoveldialogue(lines, bgContext = null) {
-        if (!Array.isArray(lines)) lines = [lines];
-        lines = lines.map(l => {
-            if (typeof l === 'string') return { text: l, speaker: "right", name: "" };
-            return l;
-        });
+        let normalizedLines = [];
+        const rawList = Array.isArray(lines) ? lines : [lines];
 
+        for (const l of rawList) {
+            const item = (typeof l === 'string') ? { text: l, speaker: "right", name: "" } : l;
 
+            if (item.text && item.text.length > 56) {
+                let remaining = item.text;
+                let isFirst = true;
+
+                while (remaining.length > 0) {
+                    const cutLength = 56;
+                    const chunk = remaining.substring(0, cutLength);
+                    const newItem = { ...item, text: chunk };
+
+                    // Only run action on the first chunk so it doesn't repeat
+                    if (!isFirst && newItem.action) {
+                        delete newItem.action;
+                    }
+
+                    normalizedLines.push(newItem);
+                    remaining = remaining.substring(cutLength);
+                    isFirst = false;
+                }
+            } else {
+                normalizedLines.push(item);
+            }
+        }
+        lines = normalizedLines;
+
+        // --- Cinematic Setup ---
         const dialogueLayer = document.createElement('div');
         dialogueLayer.id = "vn-layer";
         dialogueLayer.style.cssText = `
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000;
-            pointer-events: none;
+            background: #000; display: flex; align-items: center; justify-content: center;
         `;
         document.body.appendChild(dialogueLayer);
 
-        const bgLayer = document.createElement('div');
-        bgLayer.style.cssText = `position: absolute; inset: 0; background-image: linear-gradient(to bottom right, #141e30, #243b55); background-color: #000; background-size: cover; background-position: center; z-index: 0; transition: background-image 0.5s;`;
-        dialogueLayer.appendChild(bgLayer);
-
-
-        const fxCanvas = document.createElement('canvas');
-        fxCanvas.width = window.innerWidth;
-        fxCanvas.height = window.innerHeight;
-        fxCanvas.style.cssText = "position: absolute; inset: 0; z-index: 1; pointer-events: none;";
-        dialogueLayer.appendChild(fxCanvas);
-
-        const ctxFX = fxCanvas.getContext('2d');
-        let particles = [];
-        for (let i = 0; i < 60; i++) {
-            particles.push({
-                x: Math.random() * fxCanvas.width,
-                y: Math.random() * fxCanvas.height,
-                size: Math.random() * 2 + 0.5,
-                speed: Math.random() * 0.8 + 0.2,
-                opacity: Math.random()
-            });
-        }
-
-        let animId;
-        function renderFX() {
-            ctxFX.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
-
-            ctxFX.strokeStyle = "rgba(77, 238, 234, 0.08)";
-            ctxFX.lineWidth = 1;
-            const gridSize = 50;
-
-
-            ctxFX.fillStyle = "#4deeea";
-            particles.forEach(p => {
-                p.y -= p.speed;
-                if (p.y < 0) {
-                    p.y = fxCanvas.height;
-                    p.x = Math.random() * fxCanvas.width;
-                }
-                ctxFX.globalAlpha = p.opacity * 0.6;
-                ctxFX.beginPath();
-                ctxFX.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctxFX.fill();
-            });
-            ctxFX.globalAlpha = 1.0;
-
-            animId = requestAnimationFrame(renderFX);
-        }
-        renderFX();
-
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes breathe {
-                0% { transform: scaleY(1); }
-                50% { transform: scaleY(0.98); }
-                100% { transform: scaleY(1); }
-            }
-            .vn-char {
-                position: absolute; bottom: 0; transition: filter 0.3s, opacity 0.3s;
-                transform-origin: bottom center;
-                animation: breathe 3s infinite ease-in-out;
-                height: 80vh;
-                image-rendering: pixelated;
-            }
-            .vn-char.left { left: 10%; z-index: 2; }
-            .vn-char.right { right: 10%; z-index: 2; }
-            .vn-char.dim { filter: brightness(0.4); z-index: 1; }
-            .vn-char.active { filter: brightness(1.2) drop-shadow(0 0 20px rgba(0, 255, 255, 0.3)); z-index: 3; }
-            
-            .vn-box {
-                position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-                width: 90%; max-width: 1000px; 
-                height: auto; min-height: 120px;
-                background: rgba(10, 16, 26, 0.95);
-                border: 2px solid #4deeea;
-                padding: 20px 35px;
-                font-size: clamp(14px, 2vw, 22px);
-                color: #e0f7fa;
-                font-family: 'DotJP', sans-serif;
-                z-index: 10;
-                display: flex; flex-direction: column;
-                box-shadow: 0 0 20px rgba(77, 238, 234, 0.2), inset 0 0 60px rgba(0, 0, 0, 0.8);
-                clip-path: polygon(
-                    20px 0, 100% 0, 
-                    100% calc(100% - 20px), calc(100% - 20px) 100%, 
-                    0 100%, 0 20px
-                );
-            }
-            @media (max-width: 768px) {
-                .vn-box {
-                    width: 95%;
-                    padding: 15px 20px;
-                    min-height: 100px;
-                    bottom: 10px;
-                }
-            }
-            .vn-box::before {
-                content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px;
-                border: 1px solid rgba(77, 238, 234, 0.3);
-                clip-path: polygon(
-                    15px 0, 100% 0, 
-                    100% calc(100% - 15px), calc(100% - 15px) 100%, 
-                    0 100%, 0 15px
-                );
-                pointer-events: none;
-            }
-            .vn-name { 
-                font-size: clamp(18px, 3vw, 32px); font-weight: bold; margin-bottom: 8px; 
-                color: #4deeea; text-shadow: 0 0 10px rgba(77, 238, 234, 0.7);
-                border-bottom: 2px solid rgba(77, 238, 234, 0.3);
-                padding-bottom: 5px; display: inline-block; align-self: flex-start;
-            }
-            .vn-text { line-height: 1.6; letter-spacing: 0.05em; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-            .vn-next-indicator {
-                position: absolute; bottom: 10px; right: 20px;
-                color: #4deeea; font-size: clamp(14px, 2vw, 18px);
-                animation: blink 1s infinite;
-            }
-            @keyframes blink { 50% { opacity: 0; } }
+        const cinemaContainer = document.createElement('div');
+        cinemaContainer.style.cssText = `
+            position: relative; width: 100%; max-width: 177.78vh; height: 56.25vw; max-height: 100%;
+            overflow: hidden; background: #000; box-shadow: 0 0 50px rgba(0,0,0,0.8);
         `;
-        document.head.appendChild(style);
+        dialogueLayer.appendChild(cinemaContainer);
+
+        const bgLayer = document.createElement('div');
+        bgLayer.style.cssText = `position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 1; transition: opacity 0.5s;`;
+        cinemaContainer.appendChild(bgLayer);
+
+        // Cyber Grid Canvas
+        const gridCanvas = document.createElement('canvas');
+        gridCanvas.style.cssText = "position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none;";
+        cinemaContainer.appendChild(gridCanvas);
+
+        // Char Layer
+        const charLayer = document.createElement('div');
+        charLayer.style.cssText = "position: absolute; inset: 0; z-index: 5; pointer-events: none;";
+        cinemaContainer.appendChild(charLayer);
 
         const leftChar = document.createElement('img');
         leftChar.className = "vn-char left dim";
         leftChar.src = "./game/player/player.png";
-        dialogueLayer.appendChild(leftChar);
+        charLayer.appendChild(leftChar);
 
         const rightChar = document.createElement('img');
         rightChar.className = "vn-char right dim";
-        dialogueLayer.appendChild(rightChar);
+        charLayer.appendChild(rightChar);
 
-        const box = document.createElement('div');
-        box.className = "vn-box";
-        dialogueLayer.appendChild(box);
+        // Post-Process
+        const overlayFX = document.createElement('div');
+        overlayFX.style.cssText = `
+            position: absolute; inset: 0; z-index: 20; pointer-events: none;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+        `;
+        cinemaContainer.appendChild(overlayFX);
 
-        const nameEl = document.createElement('div');
-        nameEl.className = "vn-name";
-        box.appendChild(nameEl);
+        // Dialogue Box
+        const dlBox = document.createElement('div');
+        dlBox.className = "vn-box";
+        cinemaContainer.appendChild(dlBox);
 
-        const textEl = document.createElement('div');
-        textEl.className = "vn-text";
-        box.appendChild(textEl);
+        const nameEl = document.createElement('div'); nameEl.className = "vn-name";
+        dlBox.appendChild(nameEl);
+        const textEl = document.createElement('div'); textEl.className = "vn-text";
+        dlBox.appendChild(textEl);
+        const nextArrow = document.createElement('div'); nextArrow.className = "vn-next";
+        dlBox.appendChild(nextArrow);
 
-        const nextArrow = document.createElement('div');
-        nextArrow.className = "vn-next-indicator";
-        nextArrow.textContent = "▼ 画面クリックまたはEnterで進む";
-        box.appendChild(nextArrow);
+        // Style
+        const style = document.createElement('style');
+        style.textContent = `
+            .vn-box {
+                position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
+                width: 90%; height: 25%;
+                background: rgba(10, 16, 26, 0.9);
+                border: 2px solid #4deeea;
+                padding: 20px 40px;
+                font-family: 'DotJP', sans-serif;
+                color: #e0f7fa;
+                z-index: 10;
+                display: flex; flex-direction: column;
+                box-shadow: 0 0 20px rgba(77, 238, 234, 0.2);
+            }
+            .vn-name {
+                font-size: clamp(14px, 3.5vw, 32px); font-weight: bold; color: #4deeea; margin-bottom: 10px;
+                text-shadow: 0 0 10px rgba(77, 238, 234, 0.8);
+            }
+            .vn-text {
+                font-size: clamp(12px, 3vw, 24px); line-height: 1.6; text-shadow: 0 1px 2px #000;
+            }
+            .vn-next {
+                position: absolute; bottom: 15px; right: 20px;
+                width: 15px; height: 15px; border-right: 3px solid #4deeea; border-bottom: 3px solid #4deeea;
+                transform: rotate(45deg); animation: bounce 1s infinite; display: none;
+            }
+            @keyframes bounce { 0%, 100% { transform: rotate(45deg) translate(0,0); } 50% { transform: rotate(45deg) translate(-5px,-5px); } }
+            
+            .vn-char {
+                position: absolute; bottom: 0; height: 90%; transition: all 0.3s;
+                image-rendering: pixelated; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+            }
+            .vn-char.left { left: 10%; transform: translateX(-20%); }
+            .vn-char.right { right: 10%; transform: translateX(20%); }
+            .vn-char.active { filter: brightness(1.2) drop-shadow(0 0 15px rgba(77,238,234,0.4)); transform: scale(1.05); z-index: 2; }
+            .vn-char.dim { filter: brightness(0.5) grayscale(0.5); z-index: 1; }
+        `;
+        document.head.appendChild(style);
 
+        // --- Grid Animation ---
+        const ctx = gridCanvas.getContext('2d');
+        let width, height;
+        const resize = () => {
+            width = gridCanvas.width = cinemaContainer.clientWidth;
+            height = gridCanvas.height = cinemaContainer.clientHeight;
+        };
+        const resizer = new ResizeObserver(resize);
+        resizer.observe(cinemaContainer);
+
+        let time = 0;
+        let particles = Array.from({ length: 80 }, () => ({
+            x: Math.random(), y: Math.random(), z: Math.random() * 2 + 0.1
+        }));
+
+        let animationFrame; // Renamed from animId to be clear
+        function animate() {
+            if (!dialogueLayer.isConnected) return;
+            time += 0.01;
+            ctx.clearRect(0, 0, width, height);
+
+            // Cyber Grid
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = `rgba(77, 238, 234, ${0.1 + Math.sin(time) * 0.05})`;
+            const horizon = height * 0.6;
+            const fov = 300;
+
+            ctx.beginPath();
+            for (let x = -width; x < width * 2; x += 40) {
+                const x1 = (x - width / 2) * (fov / 100) + width / 2;
+                ctx.moveTo(width / 2, horizon);
+                ctx.lineTo(x, height);
+            }
+            for (let z = 0; z < 10; z++) {
+                const p = (z + (time * 2) % 1) / 10;
+                const y = horizon + (height - horizon) * p;
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+            }
+            ctx.stroke();
+
+            // Particles
+            ctx.fillStyle = '#4deeea';
+            particles.forEach(p => {
+                p.y += 0.002 * p.z;
+                if (p.y > 1) p.y = 0;
+                const sx = p.x * width;
+                const sy = p.y * height;
+                const size = p.z * 1.5;
+                const alpha = Math.sin(p.z + time * 2) * 0.5 + 0.5;
+                ctx.globalAlpha = alpha;
+                ctx.fillRect(sx, sy, size, size);
+            });
+            ctx.globalAlpha = 1;
+            animationFrame = requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- Logic ---
         const playerSprites = {
             "neutral": "./game/player/player.png",
             "smile": "./game/player/player_Smile.png",
             "angry": "./game/player/player_Perplexity.png",
             "sad": "./game/player/player_Meaningless.png",
             "sit": "./game/player/player_sitdown.png",
-            "angry": "./game/player/player_A.png",
         };
 
         let resolveStep = null;
@@ -752,113 +919,85 @@ export async function start() {
         let skipTyping = false;
 
         const clickHandler = () => {
-            if (isTyping) {
-                skipTyping = true;
-            } else if (resolveStep) {
-                resolveStep();
-            }
+            if (isTyping) skipTyping = true;
+            else if (resolveStep) resolveStep();
         };
         const keyHandler = (e) => {
-            if (e.key === "Enter") {
-                clickHandler();
-            }
+            if (e.key === "Enter" || e.code === "Space") clickHandler();
         };
+
         const inputOverlay = document.createElement('div');
-        inputOverlay.id = "vn-input-overlay";
-        inputOverlay.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;z-index:3000;cursor:pointer;pointer-events:auto;";
+        inputOverlay.style.cssText = "position:absolute; inset:0; z-index:3000; cursor:pointer;";
         inputOverlay.onclick = clickHandler;
-        // Improve mobile responsiveness
-        inputOverlay.addEventListener('touchend', (e) => {
-            e.preventDefault(); // Prevent ghost clicks
-            clickHandler();
-        }, { passive: false });
+        inputOverlay.addEventListener('touchend', (e) => { e.preventDefault(); clickHandler(); }, { passive: false });
         dialogueLayer.appendChild(inputOverlay);
 
         window.addEventListener("keydown", keyHandler);
 
+        // Sound Reuse
+        const typeSound = new Audio("./game/music/system_view.mp3");
+        typeSound.volume = 0.4;
+
         for (const line of lines) {
+            // BG Image
             if (line.img) {
                 bgLayer.style.backgroundImage = `url('${line.img}')`;
             }
 
+            // Actions
             if (line.action && typeof line.action === 'function') {
                 await line.action();
                 if (!line.text) continue;
             }
 
+            // Characters
             if (line.chara === false) {
                 leftChar.style.display = 'none';
                 rightChar.style.display = 'none';
             } else {
                 leftChar.style.display = 'block';
-
+                // Speaker Logic
                 if (line.speaker === "left") {
-                    leftChar.classList.remove("dim"); leftChar.classList.add("active");
-                    rightChar.classList.remove("active"); rightChar.classList.add("dim");
-                    if (line.emotion && playerSprites[line.emotion]) {
-                        leftChar.src = playerSprites[line.emotion];
-                    }
+                    leftChar.className = "vn-char left active";
+                    rightChar.className = "vn-char right dim";
+                    if (line.emotion && playerSprites[line.emotion]) leftChar.src = playerSprites[line.emotion];
                 } else if (line.speaker === "right") {
-                    rightChar.classList.remove("dim"); rightChar.classList.add("active");
-                    leftChar.classList.remove("active"); leftChar.classList.add("dim");
+                    rightChar.className = "vn-char right active";
+                    leftChar.className = "vn-char left dim";
                     rightChar.style.display = 'block';
 
-                    if (line.rightChar) {
-                        rightChar.src = line.rightChar;
-                        rightChar.style.filter = "brightness(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.5))";
-                    } else if (line.image) {
-                        rightChar.src = line.image;
-                        rightChar.style.filter = "brightness(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.5))";
-                    } else if (line.name === "神" || line.name === "神…?") {
-                        rightChar.src = "./game/god.png";
-                        rightChar.style.filter = "brightness(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.5))";
-                    } else if (line.name === "Error") {
-                        rightChar.src = "./game/god_error.png";
-                        rightChar.style.filter = "brightness(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.5))";
-                    } else {
-                        if (!rightChar.src || rightChar.src === "" || rightChar.src.endsWith(".html")) {
+                    if (line.rightChar) rightChar.src = line.rightChar;
+                    else if (line.image) rightChar.src = line.image;
+                    else if (line.name === "神" || line.name === "神…?") rightChar.src = "./game/god.png";
+                    else if (line.name === "Error") rightChar.src = "./game/god_error.png";
+                    else {
+                        // Original Logic Restore
+                        if (!rightChar.src || rightChar.src === "" || rightChar.src.endsWith(".html") || rightChar.src.includes("player")) {
                             if (bgContext && typeof bgContext.Stagenumber !== 'undefined') {
                                 const num = bgContext.Stagenumber;
                                 let enemyIndex = num;
                                 let enemyColor = "rgba(255,0,0,1)";
-
-                                if (num === 0) {
-                                    enemyIndex = 0;
-                                    enemyColor = "rgba(255,0,0,1)";
-                                } else if (num === 1) {
-                                    enemyIndex = 1;
-                                    enemyColor = "rgba(0,255,0,1)";
-                                } else if (num === 2) {
-                                    enemyIndex = 2;
-                                    enemyColor = "rgba(0,0,255,1)";
-                                } else if (num === 3) {
-                                    enemyIndex = 3;
-                                    enemyColor = "rgba(50,50,50,1)";
-                                    if (bgContext.Stagelevel === 7) {
-                                        enemyIndex = 5;
-                                    }
+                                if (num === 0) { enemyIndex = 0; enemyColor = "rgba(255,0,0,1)"; }
+                                else if (num === 1) { enemyIndex = 1; enemyColor = "rgba(0,255,0,1)"; }
+                                else if (num === 2) { enemyIndex = 2; enemyColor = "rgba(0,0,255,1)"; }
+                                else if (num === 3) {
+                                    enemyIndex = 3; enemyColor = "rgba(50,50,50,1)";
+                                    if (bgContext.Stagelevel === 7) enemyIndex = 5;
                                 }
-                                let enemyDataURL;
-                                if (enemyIndex !== 5) {
-                                    enemyDataURL = renderenemytodataurl(enemyIndex, enemyColor, 15);
-                                } else {
-                                    enemyDataURL = renderenemytodataurl(5, enemyColor, 15, true);
-                                }
-                                if (enemyDataURL) {
-                                    rightChar.src = enemyDataURL;
-                                    rightChar.style.filter = "brightness(1.2) drop-shadow(0 0 10px rgba(255,255,255,0.5))";
-                                }
+                                let enemyDataURL = (enemyIndex !== 5)
+                                    ? renderenemytodataurl(enemyIndex, enemyColor, 15)
+                                    : renderenemytodataurl(5, enemyColor, 15, true);
+                                if (enemyDataURL) rightChar.src = enemyDataURL;
                             }
                         }
                     }
                 } else {
-                    leftChar.classList.remove("active"); leftChar.classList.add("dim");
-                    rightChar.classList.remove("active"); rightChar.classList.add("dim");
+                    leftChar.className = "vn-char left dim";
+                    rightChar.className = "vn-char right dim";
                 }
             }
 
             nameEl.textContent = line.name || " ";
-
             textEl.textContent = "";
             nextArrow.style.display = 'none';
             isTyping = true;
@@ -871,21 +1010,23 @@ export async function start() {
                     break;
                 }
                 textEl.textContent += txt[i];
-                await systems.sleep(30);
-                soundeffect("./game/music/system_view.mp3")
+                if (i % 3 === 0) {
+                    typeSound.currentTime = 0;
+                    typeSound.play().catch(() => { });
+                }
+                await new Promise(r => setTimeout(r, 20));
             }
             isTyping = false;
             nextArrow.style.display = 'block';
-
-            await new Promise(r => { resolveStep = r; });
+            await new Promise(r => resolveStep = r);
             resolveStep = null;
         }
 
-        cancelAnimationFrame(animId);
+        cancelAnimationFrame(animationFrame);
+        resizer.disconnect();
         window.removeEventListener("keydown", keyHandler);
         dialogueLayer.remove();
         style.remove();
-
     }
 
     async function inputtext(name, i_x, i_y, i_width, i_height, fontSize, maxLength) {
@@ -1005,7 +1146,7 @@ export async function start() {
                 text-align: right;
                 margin-top: 8px;
             `;
-            counter.textContent = `0 / ${maxLength}`;
+            counter.textContent = `${inputField.value.length} / ${maxLength}`;
             container.appendChild(counter);
 
             // Confirm button
@@ -2264,10 +2405,10 @@ export async function start() {
                     if (b.isPreLine) {
                         b.gui.typeValue = "#d0d000";
                         if (b.gui.height > b.gui.width) {
-                            b.gui.height = b.height;
+                            b.gui.height = b.height * 2;
                             b.gui.width = b.width * 0.5;
                         } else {
-                            b.gui.width = b.width;
+                            b.gui.width = b.width * 2;
                             b.gui.height = b.height * 0.5;
                         }
 
@@ -2350,7 +2491,7 @@ export async function start() {
                         } else {
                             time -= 4;
                             if (!(StageLevel == 7)) {
-                                time -= 3;
+                                time -= 4;
                             }
                             createWarningHitEffect(player.gui.x, player.gui.y, savedata.maincolor);
                         }
@@ -2598,13 +2739,33 @@ export async function start() {
     async function tutorial() {
         const isMobileMode = isMobile();
         const controlsMessage = isMobileMode
-            ? "基本的な操作方法は画面上のボタンです。"
-            : "基本的な操作方法は矢印キーとスペースキーです。";
+            ? "基本的な操作方法は画面上の矢印ボタンです。"
+            : "基本的な操作方法は矢印キーで移動、スペースキーで攻撃です。";
         const attackMessage = isMobileMode
-            ? "グラビティバーは時間とともに溜まり、溜まってから\n画面上のボタンを長押しすると\n攻撃が出来ます。"
+            ? "グラビティバーは時間とともに溜まり、溜まってから\n画面上のAボタンを長押しすると\n攻撃が出来ます。"
             : "グラビティバーは時間とともに溜まり、溜まってから\nスペースキーを長押しすると\n攻撃が出来ます。";
 
+        // Intro
+        const introScenes = [
+            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルです！\nまずは基本操作について説明します。" },
+            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: controlsMessage },
+            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "左にある水色のバーは、グラビティバーと言います。" },
+            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: attackMessage },
+            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "それでは、実際に動いて攻撃してみましょう。\n敵の弾を避けながら攻撃してください！" },
+        ];
+        await visualnoveldialogue(introScenes);
+
+        // Practice Battle
+        await battle(async () => {
+            await visualnoveldialogue([{ text: "実践開始！(相手を倒せ!)", name: "System" }]);
+            // Simple pattern for practice
+            await bullethells(0, "rgba(0,255,0,1)");
+        }, 0, 8, false, false, null, null);
+
+        // Post-Battle
         const scenes = [
+            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "ナイスファイトです！\nちなみに、敵が打ってくるビームの黄色い予告線に触れると、グラビティゲージが大量に上がります" },
+            { img: "./game/movie/tutorial_movie-3.png", chara: false, text: "右にある緑色のバーは、HPバーです。\nこれが0になるとゲームオーバーとなります。" },
             { img: "./game/movie/movie-9.png", text: "「クリスタル族幹部は、Red隊、Blue隊、Green隊、Black隊に分かれている。」", name: "神", speaker: "right" },
             { img: "./game/movie/movie-9.png", text: "「それぞれ7人ごとの小さな部隊だが…強力だ。」", name: "神", speaker: "right" },
             { img: "./game/movie/movie-9.png", text: "「リーダーはそれぞれ、ディア―、エウルブ、ネアー、クカルヴだ…」", name: "神", speaker: "right" },
@@ -2613,13 +2774,7 @@ export async function start() {
             { img: "./game/movie/movie-9.png", text: "「急げよ。" + savedata.name + "。\nこの世界の…いや、俺の『メモリ』が食いつぶされる前に頼むぞ。」", name: "神", speaker: "right" },
             { img: "./game/movie/movie-9.png", text: "「メモリ…？」", name: savedata.name, speaker: "left" },
             { img: "./game/movie/movie-9.png", text: "「あー…いや、こっちの話だ。気にするな。\nまぁ…クリスタル族は倒されても1か月ほど経てば「転生」するんだ…だが、記憶も筋肉も全てロストだ。だが安心しろ、『才能』だけは残る。クリスタル族にとって、積み上げたものが消えるのはとてつもなく重い罰だ。」", name: "神", speaker: "right" },
-            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルです！" },
-            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: controlsMessage },
-            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "左にある水色のバーは、グラビティバーと言います。" },
-            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: attackMessage },
-            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "ちなみに、敵が打ってくるビームの黄色い予告線に触れると、グラビティゲージが大量に上がります。" },
-            { img: "./game/movie/tutorial_movie-3.png", chara: false, text: "右にある緑色のバーは、HPバーです。\nこれが0になるとゲームオーバーとなります。" },
-            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルは以上です。\nそれでは、戦いに挑戦してみましょう。" },
+            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルは以上です。\nそれでは、本編をお楽しみください。" },
         ];
 
         await visualnoveldialogue(scenes);
@@ -2638,13 +2793,17 @@ image-rendering: pixelated; font-family: 'DotJP', sans-serif;
                     parentElement.appendChild(overlay);
 
                     const container = document.createElement('div');
+                    // Added z-index: 10 and position: relative to ensure it's above the background
                     container.style.cssText = `
-width: 800px; height: 500px;
+width: 800px; height: 500px; position: relative; z-index: 10;
 background: #000; border: 4px solid #fff;
 box-shadow: 0 0 0 8px #000, 0 0 40px rgba(0, 0, 0, 0.8);
 display: flex; flex-direction: column; padding: 4px;
 `;
                     overlay.appendChild(container);
+
+                    // Add Amazing Background
+                    addbg(overlay);
 
                     const header = document.createElement('div');
                     header.style.cssText = `
@@ -2664,7 +2823,7 @@ margin-bottom: 20px; display: flex; justify-content: space-between;
 
                     const svCanvas = document.createElement('canvas');
                     svCanvas.width = 350; svCanvas.height = 350;
-                    svCanvas.style.cssText = 'border: 4px solid #fff; cursor: crosshair; image-rendering: pixelated;';
+                    svCanvas.style.cssText = 'border: 4px solid #fff; cursor: crosshair; image-rendering: pixelated; touch-action: none;';
                     leftPanel.appendChild(svCanvas);
 
                     const rightPanel = document.createElement('div');
@@ -2682,7 +2841,7 @@ margin-bottom: 20px; display: flex; justify-content: space-between;
                     hueGroup.innerHTML = '<div style="color:#fff; margin-bottom:4px;">> HUE</div>';
                     const hueCanvas = document.createElement('canvas');
                     hueCanvas.width = 290; hueCanvas.height = 40;
-                    hueCanvas.style.cssText = 'border: 4px solid #fff; cursor: pointer; image-rendering: pixelated;';
+                    hueCanvas.style.cssText = 'border: 4px solid #fff; cursor: pointer; image-rendering: pixelated; touch-action: none;';
                     hueGroup.appendChild(hueCanvas);
                     rightPanel.appendChild(hueGroup);
 
@@ -2767,7 +2926,7 @@ font-weight: bold; cursor: pointer; text-transform: uppercase;
                             case 4: r = t, g = p, b = v; break; case 5: r = v, g = p, b = q; break;
                         }
                         const toHex = x => { const hex = Math.round(x * 255).toString(16); return hex.length === 1 ? '0' + hex : hex; };
-                        return `#${toHex(r)}${toHex(g)}${toHex(b)} `;
+                        return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
                     }
 
                     function hexToHsv(hex) {
@@ -2796,28 +2955,48 @@ font-weight: bold; cursor: pointer; text-transform: uppercase;
                     }
 
                     let draggingSV = false, draggingHue = false;
-                    svCanvas.onmousedown = e => { draggingSV = true; updateSV(e); };
-                    hueCanvas.onmousedown = e => { draggingHue = true; updateHue(e); };
-                    window.addEventListener('mouseup', () => { draggingSV = false; draggingHue = false; });
-                    window.addEventListener('mousemove', e => {
-                        if (draggingSV) updateSV(e);
-                        if (draggingHue) updateHue(e);
-                    });
 
-                    function updateSV(e) {
+                    const updateSV = (e) => {
                         const rect = svCanvas.getBoundingClientRect();
-                        let x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-                        let y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+                        // Support touch
+                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                        let x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+                        let y = Math.max(0, Math.min(clientY - rect.top, rect.height));
                         sat = x / rect.width; val = 1 - (y / rect.height);
                         updateUI(false);
-                    }
+                    };
 
-                    function updateHue(e) {
+                    const updateHue = (e) => {
                         const rect = hueCanvas.getBoundingClientRect();
-                        let x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+
+                        let x = Math.max(0, Math.min(clientX - rect.left, rect.width));
                         hue = (x / rect.width) * 360;
                         updateUI(true);
-                    }
+                    };
+
+                    // Event Handlers
+                    const onDownSV = e => { if (e.cancelable) e.preventDefault(); draggingSV = true; updateSV(e); };
+                    const onDownHue = e => { if (e.cancelable) e.preventDefault(); draggingHue = true; updateHue(e); };
+
+                    svCanvas.addEventListener('mousedown', onDownSV);
+                    svCanvas.addEventListener('touchstart', onDownSV, { passive: false });
+
+                    hueCanvas.addEventListener('mousedown', onDownHue);
+                    hueCanvas.addEventListener('touchstart', onDownHue, { passive: false });
+
+                    const onUp = () => { draggingSV = false; draggingHue = false; };
+                    const onMove = e => {
+                        if (draggingSV) { if (e.cancelable) e.preventDefault(); updateSV(e); }
+                        if (draggingHue) { if (e.cancelable) e.preventDefault(); updateHue(e); }
+                    };
+
+                    window.addEventListener('mouseup', onUp);
+                    window.addEventListener('touchend', onUp);
+                    window.addEventListener('mousemove', onMove, { passive: false });
+                    window.addEventListener('touchmove', onMove, { passive: false });
 
                     hexInput.onchange = () => {
                         const hex = hexInput.value;
@@ -2828,9 +3007,17 @@ font-weight: bold; cursor: pointer; text-transform: uppercase;
                         }
                     };
 
+                    const cleanUp = () => {
+                        window.removeEventListener('mouseup', onUp);
+                        window.removeEventListener('touchend', onUp);
+                        window.removeEventListener('mousemove', onMove);
+                        window.removeEventListener('touchmove', onMove);
+                    };
+
                     confirmBtn.onclick = () => {
                         playClick();
                         const selected = hsvToHex(hue / 360, sat, val);
+                        cleanUp();
                         overlay.remove();
                         resolve(selected);
                     };
@@ -3082,6 +3269,9 @@ opacity: 0; transition: opacity 0.3s;
 `;
             parentElement.appendChild(overlay);
             requestAnimationFrame(() => overlay.style.opacity = '1');
+
+            // Add Amazing Background
+            addbg(overlay);
 
             const header = document.createElement('div');
             header.style.cssText = `
@@ -3448,6 +3638,81 @@ cursor: pointer; box-shadow: 4px 4px 0 #000;
         });
     }
 
+    async function Setting() {
+        return new Promise(resolve => {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+                z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                font-family: 'DotJP', sans-serif; color: white; opacity: 0; transition: opacity 0.3s;
+            `;
+            document.body.appendChild(overlay);
+            requestAnimationFrame(() => overlay.style.opacity = '1');
+
+            const container = document.createElement('div');
+            container.style.cssText = `
+                width: 500px; padding: 40px; border: 4px solid #fff;
+                background: #000; display: flex; flex-direction: column; gap: 30px;
+                box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            `;
+            overlay.appendChild(container);
+
+            const title = document.createElement('h2');
+            title.textContent = "SETTINGS";
+            title.style.cssText = "font-size: 32px; text-align: center; margin-bottom: 20px; text-shadow: 2px 2px #444;";
+            container.appendChild(title);
+
+            const createSlider = (label, key) => {
+                const group = document.createElement('div');
+                group.style.display = 'flex'; group.style.flexDirection = 'column'; group.style.gap = '10px';
+
+                const labelDiv = document.createElement('div');
+                labelDiv.style.display = 'flex'; labelDiv.style.justifyContent = 'space-between';
+                labelDiv.innerHTML = `<span>${label}</span><span id="val-${key}">${savedata.config[key]}%</span>`;
+                group.appendChild(labelDiv);
+
+                const slider = document.createElement('input');
+                slider.type = 'range'; slider.min = 0; slider.max = 100; slider.value = savedata.config[key];
+                slider.style.cssText = `
+                    width: 100%; cursor: pointer; height: 10px; background: #333;
+                    appearance: none; outline: none; border: 1px solid #666;
+                `;
+                slider.oninput = (e) => {
+                    const v = e.target.value;
+                    savedata.config[key] = parseInt(v);
+                    document.getElementById(`val-${key}`).textContent = `${v}%`;
+                };
+                group.appendChild(slider);
+                container.appendChild(group);
+            };
+
+            createSlider("BGM VOLUME", "bgm");
+            createSlider("SE VOLUME", "se");
+
+            const btnGroup = document.createElement('div');
+            btnGroup.style.cssText = "display: flex; gap: 20px; margin-top: 20px;";
+            container.appendChild(btnGroup);
+
+            const backBtn = document.createElement('button');
+            backBtn.textContent = "BACK";
+            backBtn.style.cssText = `
+                flex: 1; padding: 15px; background: #333; color: white; border: 2px solid white;
+                font-family: inherit; font-size: 18px; cursor: pointer; transition: all 0.2s;
+            `;
+            backBtn.onmouseover = () => { backBtn.style.background = '#fff'; backBtn.style.color = '#000'; };
+            backBtn.onmouseout = () => { backBtn.style.background = '#333'; backBtn.style.color = '#fff'; };
+            backBtn.onclick = () => {
+                soundeffect("./game/music/button.mp3");
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.remove();
+                    resolve();
+                }, 300);
+            };
+            btnGroup.appendChild(backBtn);
+        });
+    }
+
     async function storymode() {
         let loop = true;
         if (!savedata.start.Story) {
@@ -3772,6 +4037,7 @@ cursor: pointer; box-shadow: 4px 4px 0 #000;
                         });
 
                         if (password === "onikutabetai") {
+                            //いやーんなんで見てるのよ
                             savedata.trialUnlocked = true;
                             await visualnoveldialogue([
                                 { text: "神: 『正解だ！では、先に進もう。』", speaker: "none" }
