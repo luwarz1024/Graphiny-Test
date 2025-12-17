@@ -720,12 +720,12 @@ export async function start() {
         for (const l of rawList) {
             const item = (typeof l === 'string') ? { text: l, speaker: "right", name: "" } : l;
 
-            if (item.text && item.text.length > 56) {
+            if (item.text && item.text.length > 28 * 3) {
                 let remaining = item.text;
                 let isFirst = true;
 
                 while (remaining.length > 0) {
-                    const cutLength = 56;
+                    const cutLength = 28 * 3;
                     const chunk = remaining.substring(0, cutLength);
                     const newItem = { ...item, text: chunk };
 
