@@ -1,0 +1,19 @@
+{
+  "Progress": [
+    11,
+    9,
+    0,
+    0
+  ],
+  "maincolor": "#00faff ",
+  "number": 5,
+  "name": "luwarz1024",
+  "start": {
+    "game": true,
+    "Story": true
+  },
+  "config": {
+    "bgm": 100,
+    "se": 100
+  }
+}

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Graphiny_β</title>
+    <style>
+        @font-face {
+            font-family: 'DotJP';
+            src: url('./game/fonts/PixelMplus10-Regular.ttf') format('truetype');
+        }
+
+        /* Mobile Optimizations */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overscroll-behavior: none;
+        }
+
+        #stage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @media (max-width: 768px) {
+            #stage {
+                transform-origin: center center !important;
+            }
+        }
+
+        /* Landscape Orientation Lock for Mobile */
+        #rotate-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'DotJP', sans-serif;
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            #rotate-overlay {
+                display: flex;
+            }
+        }
+
+        .rotate-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: rotate-pulse 2s infinite;
+        }
+
+        @keyframes rotate-pulse {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(90deg);
+            }
+        }
+
+        .rotate-message {
+            font-size: 24px;
+            text-align: center;
+            padding: 0 20px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body style="background-color: #000000;">
+    <!-- Landscape Orientation Lock Overlay -->
+    <div id="rotate-overlay">
+        <div class="rotate-icon">📱→🔄</div>
+        <div class="rotate-message">画面を横向きにしてください<br>Please rotate your device to landscape</div>
+    </div>
+
+    <div id="stage" style="
+        position: relative; 
+        justify-content: center;
+        align-items: center;
+        "></div>
+    <script>
+        // Prevent default reload/restart on error
+        window.onclick = function (event) {
+            if (event.target == document.getElementById("stage")) {
+                // Logic to handle clicks if needed, but primarily here to ensure robust event handling
+            }
+        }
+        window.addEventListener('error', function (event) {
+            console.error('Global Error Caught:', event.error || event.message);
+            // Prevent the default behavior which might be a reload/restart
+            event.preventDefault();
+            return true;
+        });
+        window.addEventListener('unhandledrejection', function (event) {
+            console.error('Unhandled Promise Rejection:', event.reason);
+            event.preventDefault();
+        });
+    </script>
+    <script>
+        const Creation = class Creation {
+            constructor(name, type, element, template) {
+                this.rotation = 0;
+                if (!template) {
+                    this.name = name;
+                    this.element = element;
+                    this.type = type;
+                    this.gui = element;
+                } else {
+                    if (template == 'newcreate') {
+                        this.element2 = element;
+                        this.name = name;
+                        this.element = {}
+                        this.gui = {
+                            type: 'newcreate',
+                            typeValue: {
+                                dot: "5px", data: [
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],
+                                    ["rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)", "rgba(0,0,0,1)"],]
+                            },
+                            zIndex: 1,
+                            maxWidth: 1250,
+                            maxHeight: 700,
+                            x: 0,
+                            y: 0,
+                            width: 100,
+                            height: 100,
+                            speed: 5,
+                            conditions: ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'],
+                        };
+                        for (let key in this.element2) {
+                            this.gui[key] = this.element2[key];
+                        }
+                        this.type = type;
+                    }
+                    if (template == 'colorfill') {
+                        this.element2 = element;
+                        this.name = name;
+                        this.element = {}
+                        this.gui = {
+                            type: 'colorfill',
+                            typeValue: '#000000',
+                            zIndex: 1,
+                            maxWidth: 1250,
+                            maxHeight: 700,
+                            x: 0,
+                            y: 0,
+                            width: 100,
+                            height: 100,
+                            speed: 5,
+                            conditions: ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'],
+                        };
+                        for (let key in this.element2) {
+                            this.gui[key] = this.element2[key];
+                        }
+                        this.type = type;
+                    }
+                    if (template == 'image') {
+                        this.element2 = element;
+                        this.name = name;
+                        this.element = {}
+                        this.gui = {
+                            type: 'image',
+                            zIndex: 1,
+                            maxWidth: 1250,
+                            maxHeight: 700,
+                            x: 0,
+                            y: 0,
+                            width: 100,
+                            height: 100,
+                            speed: 5,
+                            conditions: ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'],
+                        };
+                        for (let key in this.element2) {
+                            this.gui[key] = this.element2[key];
+                        }
+                        this.type = type;
+                    }
+                    if (template == 'text') {
+                        this.element2 = element;
+                        this.name = name;
+                        this.element = {}
+                        this.gui = {
+                            type: 'text',
+                            typeValue: [20, 'hello world!'],
+                            zIndex: 1,
+                            maxWidth: 1250,
+                            maxHeight: 700,
+                            x: 0,
+                            y: 0,
+                            width: 100,
+                            height: 100,
+                            speed: 5,
+                            conditions: ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'],
+                        };
+                        for (let key in this.element2) {
+                            this.gui[key] = this.element2[key];
+                        }
+                        this.type = type;
+                    }
+                }
+                if (type == 'gui') {
+                    const canvas = document.createElement('canvas');
+                    canvas.style.zIndex = this.gui.zIndex + 1;
+                    canvas.style.position = 'absolute';
+                    canvas.id = this.name;
+                    canvas.width = this.gui.maxWidth;
+                    canvas.height = this.gui.maxHeight;
+                    this.html = canvas;
+                    document.getElementById('stage').appendChild(this.html)
+                }
+                this.keydata = {};
+
+                document.addEventListener("keydown", this.boundKeydown = (event) => this.keydown(event));
+                document.addEventListener("keyup", this.boundKeyup = (event) => this.keyup(event));
+            }
+
+            keydown(event) {
+                this.keydata[event.key] = true;
+            }
+
+            keyup(event) {
+                this.keydata[event.key] = false;
+            }
+
+            infMove() {
+                this.inf = true;
+                this.infa();
+            }
+            infa() {
+                if (this.inf) {
+                    this.move();
+                    this.canvas();
+                    requestAnimationFrame(() => this.infa());
+                }
+            }
+            move() {
+                const speed = this.gui.speed;
+                const conditions = this.gui.conditions;
+                (this.keydata[conditions[0]] && this.gui.x + this.gui.width + speed <= this.gui.maxWidth) && (this.gui.x += speed);
+                (this.keydata[conditions[1]] && this.gui.x - speed >= 0) && (this.gui.x -= speed);
+                (this.keydata[conditions[2]] && this.gui.y - speed >= 0) && (this.gui.y -= speed);
+                (this.keydata[conditions[3]] && this.gui.y + this.gui.height + speed <= this.gui.maxHeight) && (this.gui.y += speed);
+
+            }
+
+            canvas() {
+                const cre = document.getElementById(this.name);
+                const ctx = cre.getContext('2d');
+                ctx.clearRect(0, 0, this.gui.maxWidth, this.gui.maxHeight);
+
+                const cx = this.gui.x;
+                const cy = this.gui.y;
+
+                ctx.save();
+
+                ctx.translate(cx, cy);
+
+                if (this.gui.type === 'newcreate') {
+                    const dotSize = parseInt(this.gui.typeValue.dot.replace("px", ""));
+                    const data = this.gui.typeValue.data;
+                    for (let y = 0; y < data.length; y++) {
+                        for (let x = 0; x < data[y].length; x++) {
+                            ctx.fillStyle = data[y][x];
+                            ctx.fillRect(x * dotSize, y * dotSize, dotSize, dotSize);
+                        }
+                    }
+                }
+
+                if (this.gui.type === 'colorfill') {
+                    ctx.fillStyle = this.gui.typeValue;
+                    ctx.fillRect(0, 0, this.gui.width, this.gui.height);
+                }
+
+                if (this.gui.type === 'image') {
+                    if (!this.img) {
+                        this.img = new Image();
+                        this.img.src = this.gui.typeValue;
+                        this.img.onload = () => {
+                            ctx.drawImage(this.img, 0, 0, this.gui.width, this.gui.height);
+                        };
+                    }
+                    if (this.img.complete) {
+                        ctx.drawImage(this.img, 0, 0, this.gui.width, this.gui.height);
+                    }
+                }
+
+                if (this.gui.type === 'text') {
+                    document.fonts.load(`${this.gui.typeValue[0]}px DotJP`).then(() => {
+                        ctx.font = this.gui.typeValue[0] + 'px DotJP';
+                        ctx.fillStyle = 'black';
+                        this.gui.typeValue[1].split("\n").forEach((line, index) => {
+                            ctx.fillText(
+                                line,
+                                this.gui.x,
+                                this.gui.y + index * this.gui.typeValue[0]
+                            );
+                        });
+                    });
+                }
+
+
+                ctx.restore();
+            }
+
+
+            delete() {
+                const cre = document.getElementById(this.name);
+                const ctx = cre.getContext('2d');
+                ctx.clearRect(0, 0, this.gui.maxWidth, this.gui.maxHeight);
+            }
+            remove() {
+                const cre = document.getElementById(this.name);
+                if (cre) cre.remove();
+                if (this.boundKeydown) document.removeEventListener("keydown", this.boundKeydown);
+                if (this.boundKeyup) document.removeEventListener("keyup", this.boundKeyup);
+            }
+
+            static create(name, type, element, template) {
+                return new Creation(name, type, element, template);
+            }
+        };
+    </script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./js/three/build/three.module.js",
+                "three/addons/": "./js/three/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        // Pure Web Game Launcher
+        import('./game/game_town_launcher.js').then((module) => {
+            module.launch();
+        }).catch(err => console.error('Failed to load the game launcher:', err));
+    </script>
+</body>
+
+</html>
