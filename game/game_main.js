@@ -4056,13 +4056,11 @@ cursor: pointer; box-shadow: 4px 4px 0 #000;
                         ], bgContext);
                     }
 
-                    if (eventId !== "ev_trial_limit") {
-                        const config = WORLD_CONFIG[result.tabId];
-                        const index = config.findIndex(s => s.type === result.type && s.id === result.id);
-                        if (index !== -1 && savedata.Progress[result.tabId] === index) {
-                            savedata.Progress[result.tabId]++;
-                            datasave();
-                        }
+                    const config = WORLD_CONFIG[result.tabId];
+                    const index = config.findIndex(s => s.type === result.type && s.id === result.id);
+                    if (index !== -1 && savedata.Progress[result.tabId] === index) {
+                        savedata.Progress[result.tabId]++;
+                        datasave();
                     }
 
                 } else if (result.type === "battle") {
