@@ -2491,7 +2491,7 @@ export async function start() {
                         } else {
                             time -= 4;
                             if (!(StageLevel == 7)) {
-                                time -= 4;
+                                time -= 3;
                             }
                             createWarningHitEffect(player.gui.x, player.gui.y, savedata.maincolor);
                         }
