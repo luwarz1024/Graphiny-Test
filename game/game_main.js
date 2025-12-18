@@ -4046,7 +4046,9 @@ cursor: pointer; box-shadow: 4px 4px 0 #000;
                             await visualnoveldialogue([
                                 { text: "神: 『残念。体験版はここまでだ。またのお越しを！』", speaker: "none" }
                             ], bgContext);
-                            savedata.Progress[result.tabId] = 4;
+                            datasave();
+                            init();
+                            return;
                         }
                     } else {
                         await visualnoveldialogue([
@@ -4054,11 +4056,13 @@ cursor: pointer; box-shadow: 4px 4px 0 #000;
                         ], bgContext);
                     }
 
-                    const config = WORLD_CONFIG[result.tabId];
-                    const index = config.findIndex(s => s.type === result.type && s.id === result.id);
-                    if (index !== -1 && savedata.Progress[result.tabId] === index) {
-                        savedata.Progress[result.tabId]++;
-                        datasave();
+                    if (eventId !== "ev_trial_limit") {
+                        const config = WORLD_CONFIG[result.tabId];
+                        const index = config.findIndex(s => s.type === result.type && s.id === result.id);
+                        if (index !== -1 && savedata.Progress[result.tabId] === index) {
+                            savedata.Progress[result.tabId]++;
+                            datasave();
+                        }
                     }
 
                 } else if (result.type === "battle") {
