@@ -3927,8 +3927,8 @@ cursor: pointer; box-shadow: 4px 4px 0 #000;
                             container.appendChild(message);
 
                             const discordLink = document.createElement('a');
-                            discordLink.textContent = 'https://discord.gg/b7CBEu9k';
-                            discordLink.href = 'https://discord.gg/b7CBEu9k';
+                            discordLink.textContent = 'https://discord.gg/x9VTzxMf';
+                            discordLink.href = 'https://discord.gg/x9VTzxMf';
                             discordLink.target = '_blank';
                             discordLink.style.cssText = `
                                 display: block; color: #5865F2; font-size: 26px; margin-bottom: 35px;
