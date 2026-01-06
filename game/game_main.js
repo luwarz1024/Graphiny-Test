@@ -2690,7 +2690,7 @@ export async function start() {
         const audio = new Audio('./game/music/menu.mp3');
         audio.volume = savedata.config.bgm / 100;
         audio.loop = true;
-        audio.play();
+        audio.play().catch(e => console.warn("Menu BGM failed:", e));
         const back = imagebackground("./game/home.png");
 
         const logo = new SmoothImage("logo", "./game/Graphiny_logo.png", 600, 350, 0, 0);
@@ -2768,7 +2768,11 @@ export async function start() {
             { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "まず、この世界では「自由に動く」ことは出来ません。\nできるのは「落ちる方向を変える」ことだけです。" },
             {
                 img: "./game/movie/tutorial_movie-1.png", chara: false,
-                text: `${controlPrompt}を押してみてください。\n押した方向に「重力」が発生し、その方向へ落ちていきます。`,
+                text: `${controlPrompt}を押してみてください。\n押した方向に「重力」が発生し、その方向へ落ちていきます。`
+            },
+            {
+                img: "./game/movie/tutorial_movie-1.png", chara: false,
+                text: "【キー入力を待機中...】\nいずれかの方向キー（またはD-pad）を一瞬押してください。",
                 action: async () => {
                     // Start a minimal battle loop just to show movement
                     window.battleActive = true;
