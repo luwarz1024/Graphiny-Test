@@ -2772,7 +2772,9 @@ export async function start() {
             },
             {
                 img: "./game/movie/tutorial_movie-1.png", chara: false,
-                text: "【キー入力を待機中...】\nいずれかの方向キー（またはD-pad）を一瞬押してください。",
+                text: "【キー入力を待機中...】\nいずれかの方向キー（またはD-pad）を一瞬押してください。"
+            },
+            {
                 action: async () => {
                     // Start a minimal battle loop just to show movement
                     window.battleActive = true;
@@ -3124,7 +3126,7 @@ font-weight: bold; cursor: pointer; text-transform: uppercase;
         if (!savedata.config) savedata.config = { bgm: 100, se: 100 };
         audio.volume = savedata.config.bgm / 100;
         audio.loop = true;
-        audio.play();
+        audio.play().catch(e => console.warn("Menu BGM failed:", e));
         const back2 = colorbackground("#404040");
         let booltime = false;
         const wind = Creation.create("wind" + Date.now(), "gui", { typeValue: { dot: "10px", data: [] } }, "newcreate");
