@@ -68,6 +68,7 @@ export async function start() {
         height: 180px;
         z-index: 10000;
         opacity: 0.6; 
+        display: none;
     `;
 
         const directions = [
@@ -128,6 +129,7 @@ export async function start() {
 
         // Attack Button
         const attackBtn = document.createElement('div');
+        attackBtn.id = 'attack-button';
         attackBtn.textContent = 'A';
         attackBtn.style.cssText = `
         position: fixed;
@@ -147,6 +149,7 @@ export async function start() {
         z-index: 10000;
         user-select: none;
         touch-action: none;
+        display: none;
     `;
 
         attackBtn.addEventListener('touchstart', (e) => {
@@ -174,8 +177,19 @@ export async function start() {
         }, { passive: false });
 
         document.body.appendChild(attackBtn);
-
         document.body.appendChild(dpad);
+
+        // Visibility controller
+        function updateVirtualPadVisibility() {
+            const dpad = document.getElementById('virtual-dpad');
+            const abtn = document.getElementById('attack-button');
+            if (dpad && abtn) {
+                const display = window.battleActive ? 'block' : 'none';
+                dpad.style.display = display;
+                abtn.style.display = display;
+            }
+        }
+        setInterval(updateVirtualPadVisibility, 100);
     }
     createVirtualDPad();
 
@@ -821,6 +835,13 @@ export async function start() {
                 z-index: 10;
                 display: flex; flex-direction: column;
                 box-shadow: 0 0 20px rgba(77, 238, 234, 0.2);
+            }
+            @media (max-width: 768px) {
+                .vn-box {
+                    bottom: 12%;
+                    height: 30%;
+                    padding: 15px 30px;
+                }
             }
             .vn-name {
                 font-size: clamp(14px, 3.5vw, 32px); font-weight: bold; color: #4deeea; margin-bottom: 10px;
@@ -2738,43 +2759,89 @@ export async function start() {
 
     async function tutorial() {
         const isMobileMode = isMobile();
-        const controlsMessage = isMobileMode
-            ? "基本的な操作方法は画面上の矢印ボタンです。"
-            : "基本的な操作方法は矢印キーで移動、スペースキーで攻撃です。";
-        const attackMessage = isMobileMode
-            ? "グラビティバーは時間とともに溜まり、溜まってから\n画面上のAボタンを長押しすると\n攻撃が出来ます。"
-            : "グラビティバーは時間とともに溜まり、溜まってから\nスペースキーを長押しすると\n攻撃が出来ます。";
+        const controlPrompt = isMobileMode ? "画面左下のD-pad（十字ボタン）" : "キーボードの矢印キー";
+        const attackPrompt = isMobileMode ? "画面右下のAボタン" : "スペースキー";
 
-        // Intro
-        const introScenes = [
-            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルです！\nまずは基本操作について説明します。" },
-            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: controlsMessage },
-            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "左にある水色のバーは、グラビティバーと言います。" },
-            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: attackMessage },
-            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "それでは、実際に動いて攻撃してみましょう。\n敵の弾を避けながら攻撃してください！" },
-        ];
-        await visualnoveldialogue(introScenes);
+        // Step 1: Core movement concept
+        await visualnoveldialogue([
+            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルへようこそ！\nこのゲームの操作は少し特殊です。しっかり覚えましょう。" },
+            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "まず、この世界では「自由に動く」ことは出来ません。\nできるのは「落ちる方向を変える」ことだけです。" },
+            {
+                img: "./game/movie/tutorial_movie-1.png", chara: false,
+                text: `${controlPrompt}を押してみてください。\n押した方向に「重力」が発生し、その方向へ落ちていきます。`,
+                action: async () => {
+                    // Start a minimal battle loop just to show movement
+                    window.battleActive = true;
+                    const dummyPlayer = Creation.create("player", "gui", {
+                        typeValue: { dot: "2.5px", data: systems.you(true) },
+                        zIndex: 2,
+                        x: 550, y: 250
+                    }, "newcreate");
+
+                    // Simple logic to wait for any direction key
+                    let moved = false;
+                    const checkMove = () => {
+                        if (dummyPlayer.keydata['ArrowUp'] || dummyPlayer.keydata['ArrowDown'] ||
+                            dummyPlayer.keydata['ArrowLeft'] || dummyPlayer.keydata['ArrowRight']) moved = true;
+                        if (!moved && window.battleActive) requestAnimationFrame(checkMove);
+                    };
+                    checkMove();
+
+                    while (!moved) await systems.sleep(100);
+                    await systems.sleep(1000); // Let them fall a bit
+                    window.battleActive = false;
+                    dummyPlayer.remove();
+                }
+            },
+            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "いいですね！その調子で操作に慣れていきましょう。" }
+        ]);
+
+        // Step 2: Gauge explanations
+        await visualnoveldialogue([
+            {
+                img: "./game/movie/tutorial_movie-2.png", chara: false,
+                text: "画面左下にある水色のバーは「グラビティバー」です。\nこれが満タンになると、強力な攻撃が放てます。",
+                action: async () => {
+                    screenshake(10); // Subtle shake to draw attention to left side
+                }
+            },
+            {
+                img: "./game/movie/tutorial_movie-2.png", chara: false,
+                text: "攻撃するには、ゲージが溜まった状態で\n" + attackPrompt + "を長押ししてください。"
+            },
+            {
+                img: "./game/movie/tutorial_movie-3.png", chara: false,
+                text: "画面右下にある緑のバーは「HP」です。\n敵や弾に当たると減っていき、0になると敗北です。",
+                action: async () => {
+                    screenshake(10); // Draw attention to right side
+                }
+            }
+        ]);
+
+        // Step 3: Grazing (Energy gain)
+        await visualnoveldialogue([
+            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "【超重要テクニック：グレイズ】" },
+            {
+                img: "./game/movie/tutorial_movie-2.png", chara: false,
+                text: "敵が放つビームの「黄色い予告線」にあえて触れてみましょう。\n危険ですが、グラビティゲージを一気に溜めることができます！"
+            },
+            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "それでは、実戦形式で試してみましょう！" }
+        ]);
 
         // Practice Battle
         await battle(async () => {
-            await visualnoveldialogue([{ text: "実践開始！(相手を倒せ!)", name: "System" }]);
-            // Simple pattern for practice
+            await visualnoveldialogue([{ text: "実戦開始！敵を倒してください！", name: "System" }]);
+            // Give them a pattern that uses beams for grazing practice
             await bullethells(0, "rgba(0,255,0,1)");
         }, 0, 8, false, false, null, null);
 
-        // Post-Battle
+        // Final words from God
         const scenes = [
-            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "ナイスファイトです！\nちなみに、敵が打ってくるビームの黄色い予告線に触れると、グラビティゲージが大量に上がります" },
-            { img: "./game/movie/tutorial_movie-3.png", chara: false, text: "右にある緑色のバーは、HPバーです。\nこれが0になるとゲームオーバーとなります。" },
-            { img: "./game/movie/movie-9.png", text: "「クリスタル族幹部は、Red隊、Blue隊、Green隊、Black隊に分かれている。」", name: "神", speaker: "right" },
-            { img: "./game/movie/movie-9.png", text: "「それぞれ7人ごとの小さな部隊だが…強力だ。」", name: "神", speaker: "right" },
-            { img: "./game/movie/movie-9.png", text: "「リーダーはそれぞれ、ディア―、エウルブ、ネアー、クカルヴだ…」", name: "神", speaker: "right" },
-            { img: "./game/movie/movie-9.png", text: "「クカルヴ…」", name: savedata.name, speaker: "left" },
-            { img: "./game/movie/movie-9.png", text: "「そうだ。お前にはクカルヴを倒すという任務を課しているが…クカルヴを倒すには幹部を全員倒さなければならない。つまり…すべてで28人倒す必要がある。頼んだぞ。」", name: "神", speaker: "right" },
-            { img: "./game/movie/movie-9.png", text: "「急げよ。" + savedata.name + "。\nこの世界の…いや、俺の『メモリ』が食いつぶされる前に頼むぞ。」", name: "神", speaker: "right" },
-            { img: "./game/movie/movie-9.png", text: "「メモリ…？」", name: savedata.name, speaker: "left" },
-            { img: "./game/movie/movie-9.png", text: "「あー…いや、こっちの話だ。気にするな。\nまぁ…クリスタル族は倒されても1か月ほど経てば「転生」するんだ…だが、記憶も筋肉も全てロストだ。だが安心しろ、『才能』だけは残る。クリスタル族にとって、積み上げたものが消えるのはとてつもなく重い罰だ。」", name: "神", speaker: "right" },
-            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルは以上です。\nそれでは、本編をお楽しみください。" },
+            { img: "./game/movie/tutorial_movie-2.png", chara: false, text: "素晴らしい戦いでした！" },
+            { img: "./game/movie/movie-9.png", text: "「よくやった。" + savedata.name + "。基本はマスターしたようだな。」", name: "神", speaker: "right" },
+            { img: "./game/movie/movie-9.png", text: "「敵は28人…Red隊から始まり、最後にはクカルヴを倒してもらう。」", name: "神", speaker: "right" },
+            { img: "./game/movie/movie-9.png", text: "「俺の『メモリ』が限界を迎える前に、この戦争を終わらせてくれ。」", name: "神", speaker: "right" },
+            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルは以上です。\nあなたの重力で、世界を救ってください。" },
         ];
 
         await visualnoveldialogue(scenes);
