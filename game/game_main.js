@@ -2766,40 +2766,6 @@ export async function start() {
         await visualnoveldialogue([
             { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "チュートリアルへようこそ！\nこのゲームの操作は少し特殊です。しっかり覚えましょう。" },
             { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "まず、この世界では「自由に動く」ことは出来ません。\nできるのは「落ちる方向を変える」ことだけです。" },
-            {
-                img: "./game/movie/tutorial_movie-1.png", chara: false,
-                text: `${controlPrompt}を押してみてください。\n押した方向に「重力」が発生し、その方向へ落ちていきます。`
-            },
-            {
-                img: "./game/movie/tutorial_movie-1.png", chara: false,
-                text: "【キー入力を待機中...】\nいずれかの方向キー（またはD-pad）を一瞬押してください。"
-            },
-            {
-                action: async () => {
-                    // Start a minimal battle loop just to show movement
-                    window.battleActive = true;
-                    const dummyPlayer = Creation.create("player", "gui", {
-                        typeValue: { dot: "2.5px", data: systems.you(true) },
-                        zIndex: 2,
-                        x: 550, y: 250
-                    }, "newcreate");
-
-                    // Simple logic to wait for any direction key
-                    let moved = false;
-                    const checkMove = () => {
-                        if (dummyPlayer.keydata['ArrowUp'] || dummyPlayer.keydata['ArrowDown'] ||
-                            dummyPlayer.keydata['ArrowLeft'] || dummyPlayer.keydata['ArrowRight']) moved = true;
-                        if (!moved && window.battleActive) requestAnimationFrame(checkMove);
-                    };
-                    checkMove();
-
-                    while (!moved) await systems.sleep(100);
-                    await systems.sleep(1000); // Let them fall a bit
-                    window.battleActive = false;
-                    dummyPlayer.remove();
-                }
-            },
-            { img: "./game/movie/tutorial_movie-1.png", chara: false, text: "いいですね！その調子で操作に慣れていきましょう。" }
         ]);
 
         // Step 2: Gauge explanations
